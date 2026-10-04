@@ -1,16 +1,22 @@
-/* reports.c - Reports module (Student 5) */
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "reports.h"
 
-/* ---------- helper functions ---------- */
+#include "reports.h"
+#include "employees.h"
+#include "budget.h"
+#include "assets.h"
+
+/* ---------- Helper functions ---------- */
 
 static void printLine(char c, int n)
 {
     int i;
+
     for (i = 0; i < n; i++)
+    {
         putchar(c);
+    }
+
     putchar('\n');
 }
 
@@ -21,198 +27,183 @@ static void printHeading(const char *title)
     printLine('=', 60);
 }
 
-/* Reads a whole line and validates it as an integer in [min, max].
- * Keeps asking until the input is valid. */
-static int readMenuChoice(int min, int max)
+/* ---------- Employee Report ---------- */
+
+void reportEmployee(void)
 {
-    char buf[64];
-    char *end;
-    long value;
-
-    while (1) {
-        printf("Enter your choice: ");
-        if (fgets(buf, sizeof(buf), stdin) == NULL)
-            return max;                      /* EOF: leave the menu */
-        value = strtol(buf, &end, 10);
-        if (end != buf && (*end == '\n' || *end == '\0')
-            && value >= min && value <= max)
-            return (int)value;
-        printf("Invalid choice. Enter a number from %d to %d.\n", min, max);
-    }
-}
-
-/* ---------- 1. Employee report ---------- */
-
-void employeeReport(char names[][STR_LEN], char depts[][STR_LEN],
-                    double salaries[], int count)
-{
-    int i, maxIdx = 0, minIdx = 0;
-    double total = 0.0;
-    char highName[STR_LEN], lowName[STR_LEN];
-
     printHeading("EMPLOYEE REPORT");
 
-    if (count <= 0) {
+    if (getEmployeeCount() == 0)
+    {
         printf("No employees registered yet.\n\n");
         return;
     }
 
-    for (i = 0; i < count; i++) {
-        total += salaries[i];
-        if (salaries[i] > salaries[maxIdx]) maxIdx = i;
-        if (salaries[i] < salaries[minIdx]) minIdx = i;
-    }
-
-    strcpy(highName, names[maxIdx]);
-    strcpy(lowName, names[minIdx]);
-
-    printf("Total Employees: %d\n", count);
-    printf("Average Salary : N$%.2f\n", total / count);
-    printf("Highest Salary : N$%.2f (%s, %s)\n", salaries[maxIdx],
-           highName, depts[maxIdx]);
-    printf("Lowest Salary  : N$%.2f (%s, %s)\n\n", salaries[minIdx],
-           lowName, depts[minIdx]);
+    printf("Total Employees : %d\n", getEmployeeCount());
+    printf("Average Salary  : N$%.2f\n", getAverageSalary());
+    printf("Highest Salary  : N$%.2f\n", getHighestSalary());
+    printf("Lowest Salary   : N$%.2f\n\n", getLowestSalary());
 }
 
-/* ---------- 2. Budget report ---------- */
+/* ---------- Budget Report ---------- */
 
-void budgetReport(char depts[][STR_LEN], double allocated[],
-                  double spent[], int count)
+void reportBudget(void)
 {
-    int i, exceeded = 0;
-    double totalAlloc = 0.0, totalSpent = 0.0;
-
     printHeading("BUDGET REPORT");
 
-    if (count <= 0) {
-        printf("No department budgets entered yet.\n\n");
-        return;
-    }
-
-    for (i = 0; i < count; i++) {
-        totalAlloc += allocated[i];
-        totalSpent += spent[i];
-    }
-
-    printf("Total Allocated Budget: N$%.2f\n", totalAlloc);
-    printf("Total Expenditure     : N$%.2f\n", totalSpent);
-    printf("Remaining Budget      : N$%.2f\n\n", totalAlloc - totalSpent);
-
-    printf("Departments exceeding budget:\n");
-    for (i = 0; i < count; i++) {
-        if (spent[i] > allocated[i]) {
-            printf("  - %-20s Allocated: N$%.2f  Spent: N$%.2f  "
-                   "Over by: N$%.2f\n", depts[i], allocated[i], spent[i],
-                   spent[i] - allocated[i]);
-            exceeded++;
-        }
-    }
-    if (exceeded == 0)
-        printf("  None - all departments are within budget.\n");
-    printf("\n");
+    /*
+     * The Budget module already calculates and displays
+     * the complete budget report.
+     */
+    displayBudgetReport();
 }
 
-/* ---------- 3. Supplier report ---------- */
+/* ---------- Supplier Report ---------- */
 
-void supplierReport(int ids[], char names[][STR_LEN], char emails[][STR_LEN],
-                    char phones[][STR_LEN], char towns[][STR_LEN], int count)
+void reportSupplier(Supplier suppliers[], int supplierCount)
 {
     int i;
 
     printHeading("SUPPLIER REPORT");
 
-    if (count <= 0) {
+    if (supplierCount == 0)
+    {
         printf("No suppliers registered yet.\n\n");
         return;
     }
 
-    printf("%-5s %-20s %-25s %-14s %-12s\n",
+    printf("%-5s %-20s %-25s %-15s %-15s\n",
            "ID", "Name", "Email", "Telephone", "Town");
-    printLine('-', 80);
-    for (i = 0; i < count; i++)
-        printf("%-5d %-20s %-25s %-14s %-12s\n",
-               ids[i], names[i], emails[i], phones[i], towns[i]);
-    printf("\nTotal Suppliers: %d\n\n", count);
+
+    printLine('-', 85);
+
+    for (i = 0; i < supplierCount; i++)
+    {
+        printf("%-5d %-20s %-25s %-15s %-15s\n",
+               suppliers[i].id,
+               suppliers[i].name,
+               suppliers[i].email,
+               suppliers[i].telephone,
+               suppliers[i].town);
+    }
+
+    printf("\nTotal Suppliers: %d\n\n", supplierCount);
 }
 
-/* ---------- 4. Asset report ---------- */
+/* ---------- Asset Report ---------- */
 
-void assetReport(int ids[], char names[][STR_LEN], char types[][STR_LEN],
-                 double values[], char depts[][STR_LEN],
-                 char conditions[][STR_LEN], int count)
+void assetReport(void)
 {
-    int i, poorCount = 0;
-    double totalValue = 0.0;
+    Asset asset;
+    FILE *file;
+    int count = 0;
+    int vehicles = 0;
+    float total = 0.0f;
 
     printHeading("ASSET REPORT");
 
-    if (count <= 0) {
-        printf("No assets registered yet.\n\n");
+    file = fopen("assets.txt", "r");
+    if (file == NULL)
+    {
+        printf("No asset records found.\n\n");
         return;
     }
 
-    printf("%-5s %-18s %-12s %-13s %-14s %-10s\n",
-           "ID", "Name", "Type", "Value (N$)", "Department", "Condition");
-    printLine('-', 76);
-    for (i = 0; i < count; i++) {
-        printf("%-5d %-18s %-12s %-13.2f %-14s %-10s\n",
-               ids[i], names[i], types[i], values[i], depts[i],
-               conditions[i]);
-        totalValue += values[i];
-        if (strcmp(conditions[i], "Poor") == 0)
-            poorCount++;
+    printf("%-5s %-20s %-15s %-12s %-12s\n",
+           "ID", "Name", "Category", "Value (N$)", "Date");
+    printLine('-', 68);
+
+    while (fscanf(file, "%d %49s %29s %f %14s",
+                  &asset.assetID, asset.assetName, asset.category,
+                  &asset.value, asset.purchaseDate) == 5)
+    {
+        printf("%-5d %-20s %-15s %-12.2f %-12s\n",
+               asset.assetID, asset.assetName, asset.category,
+               asset.value, asset.purchaseDate);
+        total += asset.value;
+        count++;
+
+        if (strcmp(asset.category, "Vehicle") == 0)
+        {
+            vehicles++;
+        }
     }
+    fclose(file);
+
+    if (count == 0)
+    {
+        printf("No asset records found.\n\n");
+        return;
+    }
+
     printf("\nTotal Assets      : %d\n", count);
-    printf("Total Asset Value : N$%.2f\n", totalValue);
-    printf("Assets in Poor condition: %d\n\n", poorCount);
+    printf("Total Asset Value : N$%.2f\n", total);
+    printf("Vehicles          : %d\n\n", vehicles);
 }
 
-/* ---------- Reports sub-menu ---------- */
+void reportAsset(void)
+{
+    assetReport();
+}
 
-void displayReports(
-    char empNames[][STR_LEN], char empDepts[][STR_LEN],
-    double empSalaries[], int empCount,
-    char budDepts[][STR_LEN], double budAllocated[], double budSpent[],
-    int budCount,
-    int supIds[], char supNames[][STR_LEN], char supEmails[][STR_LEN],
-    char supPhones[][STR_LEN], char supTowns[][STR_LEN], int supCount,
-    int assetIds[], char assetNames[][STR_LEN], char assetTypes[][STR_LEN],
-    double assetValues[], char assetDepts[][STR_LEN],
-    char assetConds[][STR_LEN], int assetCount)
+/* ---------- Reports Menu ---------- */
+
+void displayReports(Supplier suppliers[], int supplierCount)
 {
     int choice;
 
-    do {
+    do
+    {
         printf("\n");
         printLine('=', 40);
         printf("               REPORTS\n");
         printLine('=', 40);
+
         printf("1. Employee Report\n");
         printf("2. Budget Report\n");
         printf("3. Supplier Report\n");
         printf("4. Asset Report\n");
         printf("5. Back to Main Menu\n");
 
-        choice = readMenuChoice(1, 5);
-        printf("\n");
+        printf("Enter your choice: ");
 
-        switch (choice) {
-        case 1:
-            employeeReport(empNames, empDepts, empSalaries, empCount);
-            break;
-        case 2:
-            budgetReport(budDepts, budAllocated, budSpent, budCount);
-            break;
-        case 3:
-            supplierReport(supIds, supNames, supEmails, supPhones,
-                           supTowns, supCount);
-            break;
-        case 4:
-            assetReport(assetIds, assetNames, assetTypes, assetValues,
-                        assetDepts, assetConds, assetCount);
-            break;
-        case 5:
-            break;
+        if (scanf("%d", &choice) != 1)
+        {
+            printf("Invalid input. Please enter a number from 1 to 5.\n");
+
+            while (getchar() != '\n')
+            {
+                /* Clear invalid input */
+            }
+
+            continue;
         }
+
+        switch (choice)
+        {
+            case 1:
+                reportEmployee();
+                break;
+
+            case 2:
+                reportBudget();
+                break;
+
+            case 3:
+                reportSupplier(suppliers, supplierCount);
+                break;
+
+            case 4:
+                reportAsset();
+                break;
+
+            case 5:
+                printf("Returning to main menu...\n");
+                break;
+
+            default:
+                printf("Invalid choice. Please select 1 to 5.\n");
+        }
+
     } while (choice != 5);
 }
