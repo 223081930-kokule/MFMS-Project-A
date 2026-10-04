@@ -11,4 +11,4 @@
 
 ## How to Compile:
 ```bash
-gcc main.c employees.c budget.c suppliers.c reports.c -o mfms# MFMS-Project-A
+gcc main.c employees.c budget.c suppliers.c reports.c -o mfms
