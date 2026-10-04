@@ -6,7 +6,7 @@
 - Lando Bezuidenhout (224031449) – Supplier Management[cite: 5]
 - Ndilipunye Simon (223052620) – Asset Management[cite: 5]
 - Jonas Jacob (225075830) – Reports Module[cite: 5]
-- Student 6 – Integration & Main Control
+- Kleopas Andima (223064211) – Integration & Main Control
 - Werner Kokule (223081930) – Testing, Documentation & Git Coordination[cite: 5]
 
 ## How to Compile:
