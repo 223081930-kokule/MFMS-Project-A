@@ -1,224 +1,102 @@
 #include <stdio.h>
 #include <string.h>
 #include "suppliers.h"
-
-void addSupplier(Supplier suppliers[], int *supplierCount)
+int supplierIDs[MAX_SUPPLIERS];
+char supplierNames[MAX_SUPPLIERS][100];
+char supplierEmails[MAX_SUPPLIERS][100];
+char supplierPhones[MAX_SUPPLIERS][30];
+char supplierTowns[MAX_SUPPLIERS][50];
+int supplierCount = 0;
+void addSupplier(void)
 {
-    int id;
-    int duplicate;
-
-    if (*supplierCount >= MAX_SUPPLIERS)
+    if (supplierCount >= MAX_SUPPLIERS)
     {
-        printf("\nSupplier storage is full.\n");
+        printf("Supplier limit reached.\n");
         return;
     }
-
-    printf("\n========== ADD SUPPLIER ==========\n");
-
-    do
-    {
-        printf("Enter Supplier ID: ");
-        scanf("%d", &id);
-
-        if (id <= 0)
-        {
-            printf("Supplier ID must be greater than 0.\n");
-        }
-
-    } while (id <= 0);
-
-    duplicate = 0;
-
-    for (int i = 0; i < *supplierCount; i++)
-    {
-        if (suppliers[i].id == id)
-        {
-            duplicate = 1;
-            break;
-        }
-    }
-
-    if (duplicate)
-    {
-        printf("A supplier with that ID already exists.\n");
-        return;
-    }
-
-    suppliers[*supplierCount].id = id;
-
-    getchar();
-
-    do
-    {
-        printf("Enter Supplier Name: ");
-        fgets(suppliers[*supplierCount].name,
-              sizeof(suppliers[*supplierCount].name),
-              stdin);
-
-        suppliers[*supplierCount].name[
-            strcspn(suppliers[*supplierCount].name, "\n")
-        ] = '\0';
-
-        if (strlen(suppliers[*supplierCount].name) == 0)
-        {
-            printf("Supplier name cannot be empty.\n");
-        }
-
-    } while (strlen(suppliers[*supplierCount].name) == 0);
-
-    do
-    {
-        printf("Enter Email: ");
-        fgets(suppliers[*supplierCount].email,
-              sizeof(suppliers[*supplierCount].email),
-              stdin);
-
-        suppliers[*supplierCount].email[
-            strcspn(suppliers[*supplierCount].email, "\n")
-        ] = '\0';
-
-        if (strlen(suppliers[*supplierCount].email) == 0)
-        {
-            printf("Email cannot be empty.\n");
-        }
-
-    } while (strlen(suppliers[*supplierCount].email) == 0);
-
-    do
-    {
-        printf("Enter Telephone Number: ");
-        fgets(suppliers[*supplierCount].telephone,
-              sizeof(suppliers[*supplierCount].telephone),
-              stdin);
-
-        suppliers[*supplierCount].telephone[
-            strcspn(suppliers[*supplierCount].telephone, "\n")
-        ] = '\0';
-
-        if (strlen(suppliers[*supplierCount].telephone) == 0)
-        {
-            printf("Telephone number cannot be empty.\n");
-        }
-
-    } while (strlen(suppliers[*supplierCount].telephone) == 0);
-
-    do
-    {
-        printf("Enter Town/Location: ");
-        fgets(suppliers[*supplierCount].town,
-              sizeof(suppliers[*supplierCount].town),
-              stdin);
-
-        suppliers[*supplierCount].town[
-            strcspn(suppliers[*supplierCount].town, "\n")
-        ] = '\0';
-
-        if (strlen(suppliers[*supplierCount].town) == 0)
-        {
-            printf("Town/Location cannot be empty.\n");
-        }
-
-    } while (strlen(suppliers[*supplierCount].town) == 0);
-
-    (*supplierCount)++;
-
-    printf("\nSupplier added successfully!\n");
+    printf("\n--- ADD SUPPLIER ---\n");
+    printf("Enter supplier ID: ");
+    scanf("%d", &supplierIDs[supplierCount]);
+    printf("Enter supplier name: ");
+    scanf(" %99[^\n]", supplierNames[supplierCount]);
+    printf("Enter supplier email: ");
+    scanf(" %99[^\n]", supplierEmails[supplierCount]);
+    printf("Enter supplier telephone: ");
+    scanf(" %29[^\n]", supplierPhones[supplierCount]);
+    printf("Enter supplier town/location: ");
+    scanf(" %49[^\n]", supplierTowns[supplierCount]);
+    supplierCount++;
+    printf("Supplier added successfully.\n");
 }
-
-void displaySuppliers(Supplier suppliers[], int supplierCount)
+void displaySuppliers(void)
 {
     if (supplierCount == 0)
     {
-        printf("\nNo suppliers have been registered.\n");
+        printf("\nNo suppliers have been added yet.\n");
         return;
     }
-
-    printf("\n================ SUPPLIER LIST ================\n");
-
+    printf("\n--- SUPPLIER LIST ---\n");
     for (int i = 0; i < supplierCount; i++)
     {
         printf("\nSupplier %d\n", i + 1);
-        printf("ID        : %d\n", suppliers[i].id);
-        printf("Name      : %s\n", suppliers[i].name);
-        printf("Email     : %s\n", suppliers[i].email);
-        printf("Telephone : %s\n", suppliers[i].telephone);
-        printf("Town      : %s\n", suppliers[i].town);
+        printf("ID: %d\n", supplierIDs[i]);
+        printf("Name: %s\n", supplierNames[i]);
+        printf("Email: %s\n", supplierEmails[i]);
+        printf("Telephone: %s\n", supplierPhones[i]);
+        printf("Town/Location: %s\n", supplierTowns[i]);
+        printf("Supplier name length: %zu characters\n",
+               strlen(supplierNames[i]));
     }
 }
-
-void searchSupplier(Supplier suppliers[], int supplierCount)
+void searchSupplier(void)
 {
-    int choice;
-    int id;
-    char name[50];
+    char searchName[100];
     int found = 0;
-
     if (supplierCount == 0)
     {
-        printf("\nNo suppliers have been registered.\n");
+        printf("\nNo suppliers have been added yet.\n");
         return;
     }
-
-    printf("\n========== SEARCH SUPPLIER ==========\n");
-    printf("1. Search by Supplier ID\n");
-    printf("2. Search by Supplier Name\n");
-    printf("Enter choice: ");
-    scanf("%d", &choice);
-
-    if (choice == 1)
+    printf("\nEnter supplier name to search: ");
+    scanf(" %99[^\n]", searchName);
+    for (int i = 0; i < supplierCount; i++)
     {
-        printf("Enter Supplier ID: ");
-        scanf("%d", &id);
-
-        for (int i = 0; i < supplierCount; i++)
+        if (strcmp(supplierNames[i], searchName) == 0)
         {
-            if (suppliers[i].id == id)
-            {
-                printf("\nSupplier found!\n");
-                printf("ID        : %d\n", suppliers[i].id);
-                printf("Name      : %s\n", suppliers[i].name);
-                printf("Email     : %s\n", suppliers[i].email);
-                printf("Telephone : %s\n", suppliers[i].telephone);
-                printf("Town      : %s\n", suppliers[i].town);
-
-                found = 1;
-                break;
-            }
+            char supplierDescription[250] = "";
+            strcpy(supplierDescription, supplierNames[i]);
+            strcat(supplierDescription, " - ");
+            strcat(supplierDescription, supplierTowns[i]);
+            printf("\n--- SUPPLIER FOUND ---\n");
+            printf("ID: %d\n", supplierIDs[i]);
+            printf("Name: %s\n", supplierNames[i]);
+            printf("Email: %s\n", supplierEmails[i]);
+            printf("Telephone: %s\n", supplierPhones[i]);
+            printf("Town/Location: %s\n", supplierTowns[i]);
+            printf("Description: %s\n", supplierDescription);
+            found = 1;
+            break;
         }
     }
-    else if (choice == 2)
-    {
-        getchar();
-
-        printf("Enter Supplier Name: ");
-        fgets(name, sizeof(name), stdin);
-
-        name[strcspn(name, "\n")] = '\0';
-
-        for (int i = 0; i < supplierCount; i++)
-        {
-            if (strcmp(suppliers[i].name, name) == 0)
-            {
-                printf("\nSupplier found!\n");
-                printf("ID        : %d\n", suppliers[i].id);
-                printf("Name      : %s\n", suppliers[i].name);
-                printf("Email     : %s\n", suppliers[i].email);
-                printf("Telephone : %s\n", suppliers[i].telephone);
-                printf("Town      : %s\n", suppliers[i].town);
-
-                found = 1;
-                break;
-            }
-        }
-    }
-    else
-    {
-        printf("Invalid search choice.\n");
-        return;
-    }
-
     if (!found)
     {
-        printf("\nSupplier not found.\n");
+        printf("Supplier not found.\n");
+    }
+}
+void supplierReport(void)
+{
+    if (supplierCount == 0)
+    {
+        printf("\nNo suppliers available for report.\n");
+        return;
+    }
+    printf("\n--- SUPPLIER REPORT ---\n");
+    printf("Total Suppliers: %d\n", supplierCount);
+    for (int i = 0; i < supplierCount; i++)
+    {
+        printf("%d. %s - %s\n",
+               supplierIDs[i],
+               supplierNames[i],
+               supplierTowns[i]);
     }
 }

@@ -3,16 +3,17 @@
 
 #define MAX_SUPPLIERS 100
 
-typedef struct {
-    int id;
-    char name[50];
-    char email[60];
-    char telephone[20];
-    char town[50];
-} Supplier;
+extern int supplierIDs[MAX_SUPPLIERS];
+extern char supplierNames[MAX_SUPPLIERS][100];
+extern char supplierEmails[MAX_SUPPLIERS][100];
+extern char supplierPhones[MAX_SUPPLIERS][30];
+extern char supplierTowns[MAX_SUPPLIERS][50];
 
-void addSupplier(Supplier suppliers[], int *supplierCount);
-void displaySuppliers(Supplier suppliers[], int supplierCount);
-void searchSupplier(Supplier suppliers[], int supplierCount);
+extern int supplierCount;
+
+void addSupplier(void);
+void displaySuppliers(void);
+void searchSupplier(void);
+void supplierReport(void);
 
 #endif
